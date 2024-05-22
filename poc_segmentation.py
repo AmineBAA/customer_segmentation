@@ -40,7 +40,7 @@ if uploaded_file is not None:
     scaled_data = scaler.fit_transform(data)
     predictions = kmeans.predict(scaled_data)  # adjust the column name
     data['Cluster'] = predictions
-    st.write(df_test)
+    st.write(data)
 
 
 
