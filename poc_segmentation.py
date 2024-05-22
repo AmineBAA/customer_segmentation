@@ -21,9 +21,9 @@ kmeans = pickle.load(open('kmeans.pkl', 'rb'))
 st.title('Customer Segmentation Tool')
 
 # File uploader
-uploaded_file = st.file_uploader("Choose an Excel file", type=['xlsx'])
+uploaded_file = st.file_uploader("Choose an Excel file", type=['csv'])
 if uploaded_file is not None:
-    data = pd.read_excel(uploaded_file)
+    data = pd.read_csv(uploaded_file,sep='\t',parse_dates=['Dt_Customer'])
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(data)
     predictions = kmeans.fit_predict(scaled_data)  # adjust the column name
