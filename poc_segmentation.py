@@ -13,7 +13,7 @@ import numpy as np
 import pickle
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
-
+from sklearn.preprocessing import LabelEncoder
 
 # Load your trained model
 kmeans = pickle.load(open('kmeans.pkl', 'rb'))
@@ -24,6 +24,18 @@ st.title('Customer Segmentation Tool')
 uploaded_file = st.file_uploader("Choose an Excel file", type=['csv'])
 if uploaded_file is not None:
     data = pd.read_csv(uploaded_file,sep='\t',parse_dates=['Dt_Customer'])
+    data.Education = data.Education.replace({'PhD':'PostGraduation','Master':'PostGraduation','2n Cycle':'UnderGraduation','Basic':'UnderGraduation'})
+    data.Marital_Status = data.Marital_Status.replace({'Married':'Together','Single':'Alone','Divorced':'Alone','Widow':'Alone','Absurd':'Alone','YOLO':'Alone'})
+    data.dropna(inplace=True)
+    data.drop(['ID','Year_Birth','Dt_Customer','Z_CostContact','Z_Revenue'],axis=1,inplace=True)
+    data["Spent"] = data["MntWines"] + data["MntFruits"] + data["MntMeatProducts"] + data["MntFishProducts"] + data["MntSweetProducts"] + data["MntGoldProds"]
+    data['Family_Size'] = data.Kidhome + data.Teenhome + data.Marital_Status.replace({'Alone':1,'Together':2})
+    data['Is_Parent'] = np.where((data.Kidhome + data.Teenhome)>0,1,0)
+    label_encoder = LabelEncoder()
+    for item in ['Education','Marital_Status']:
+        data[item] = data[[item]].apply(label_encoder.fit_transform)
+    
+    
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(data)
     predictions = kmeans.fit_predict(scaled_data)  # adjust the column name
